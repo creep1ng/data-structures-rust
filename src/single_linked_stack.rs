@@ -1,24 +1,24 @@
 use std::mem;
 
-pub struct List {
-    head: Link,
+pub struct List<T> {
+    head: Link<T>,
 }
 
 /*  Link is just `Option<Box<Node>>`, so we can create a type alias for it.
 After this change, we also have to change all Link::Empty to None. */
-type Link = Option<Box<Node>>;
+type Link<T> = Option<Box<Node<T>>>;
 
-struct Node {
-    elem: i32,
-    next: Link,
+struct Node<T> {
+    elem: T,
+    next: Link<T>,
 }
 
-impl List {
+impl<T> List<T> {
     pub fn new() -> Self {
         List { head: None }
     }
 
-    pub fn push(&mut self, elem: i32) {
+    pub fn push(&mut self, elem: T) {
         let new_node = Box::new(Node {
             elem: elem,
 
@@ -29,7 +29,7 @@ impl List {
         self.head = Some(new_node)
     }
 
-    pub fn pop(&mut self) -> Option<i32> {
+    pub fn pop(&mut self) -> Option<T> {
         /* We can replace this other complex operation with a closure,
         which is a lambda function that can access to local variables outside the scope of the closure.
         This will map any `Some(x)` to `Some(y)`, and leave None changeless. */
@@ -41,7 +41,7 @@ impl List {
     }
 }
 
-impl Drop for List {
+impl<T> Drop for List<T> {
     fn drop(&mut self) {
         // With `drop`, we tells to the compiler how to deallocate unused values from `List`.
 
