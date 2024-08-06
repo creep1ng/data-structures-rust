@@ -30,8 +30,8 @@ impl List {
     }
 
     pub fn pop(&mut self) -> Option<i32> {
-        /* We can replace this other complex operation with a closure, 
-        which is a lambda function that can access to local variables outside the scope of the closure. 
+        /* We can replace this other complex operation with a closure,
+        which is a lambda function that can access to local variables outside the scope of the closure.
         This will map any `Some(x)` to `Some(y)`, and leave None changeless. */
 
         self.head.take().map(|node| {
