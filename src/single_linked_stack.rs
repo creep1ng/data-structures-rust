@@ -5,7 +5,7 @@ pub struct List {
 }
 
 /*  Link is just `Option<Box<Node>>`, so we can create a type alias for it.
-    After this change, we also have to change all Link::Empty to None. */
+After this change, we also have to change all Link::Empty to None. */
 type Link = Option<Box<Node>>;
 
 struct Node {
@@ -15,36 +15,29 @@ struct Node {
 
 impl List {
     pub fn new() -> Self {
-        List { head: None}
+        List { head: None }
     }
 
     pub fn push(&mut self, elem: i32) {
         let new_node = Box::new(Node {
             elem: elem,
 
-            /*  This is a complex part of the code.
-                `next` shouldn't take the ownership of `self.head, because list will be an
-                uncompleted instance of List. So, with `mem::replace()`, we make a "temporary"
-                borrow, then next can use self.head()*/
-            next: mem::replace(&mut self.head, None)
+            /* This complex borrow operation can be done with Option.take. */
+            next: self.head.take(),
         });
 
         self.head = Some(new_node)
     }
 
     pub fn pop(&mut self) -> Option<i32> {
-        /*  First, we want to return an Option because we can make a pop in a empty List.
-            Then, the option type let us return a None or a i32 value. */
+        /* We can replace this other complex operation with a closure, 
+        which is a lambda function that can access to local variables outside the scope of the closure. 
+        This will map any `Some(x)` to `Some(y)`, and leave None changeless. */
 
-        /*  We have to borrow `self.head`. */
-        match mem::replace(&mut self.head, None) {
-
-            None => None,
-            Some(node)=> {
-                self.head = node.next;
-                Some(node.elem)
-            }
-        }
+        self.head.take().map(|node| {
+            self.head = node.next;
+            node.elem
+        })
     }
 }
 
@@ -80,7 +73,6 @@ mod test {
         list.push(3);
 
         assert_eq!(list.pop(), Some(3));
-        assert_eq!(list.pop(), Some(2));      
-
+        assert_eq!(list.pop(), Some(2));
     }
 }
