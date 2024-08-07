@@ -1,5 +1,10 @@
 use std::mem;
 
+struct Node<T> {
+    elem: T,
+    next: Link<T>,
+}
+
 pub struct List<T> {
     head: Link<T>,
 }
@@ -7,11 +12,6 @@ pub struct List<T> {
 /*  Link is just `Option<Box<Node>>`, so we can create a type alias for it.
 After this change, we also have to change all Link::Empty to None. */
 type Link<T> = Option<Box<Node<T>>>;
-
-struct Node<T> {
-    elem: T,
-    next: Link<T>,
-}
 
 impl<T> List<T> {
     pub fn new() -> Self {
@@ -104,8 +104,6 @@ impl<'a, T> Iterator for Iter<'a, T> {
         })
     }
 }
-
-
 
 #[cfg(test)]
 mod test {
