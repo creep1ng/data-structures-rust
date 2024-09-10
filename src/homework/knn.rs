@@ -9,12 +9,20 @@ pub fn clasificar(conocidos: &[&[f64]], clases: &[i32], muestra: &f64, k: usize)
     Some(0)
 }
 
+/// Evaluates the euclidean distance between x and y.
+/// Returns None if the vectors are not of the same length. Otherwise returns a f64.
 fn euclidean_distance(x: &[f64], y: &[f64]) -> Option<f64> {
+    // Both x.len() and y.len() haves constant time execution.
+    // t1
     if x.len() != y.len() {
         return None;
     }
 
+    // Assignments are constant-time.
+    // t2
     let mut squared_sum: f64 = 0.0;
+
+    // The loop iterates over each element of the size. Since the vector haves a known `n` dimension,
     for (x_i, y_i) in zip(x, y) {
         squared_sum += (y_i - x_i).powi(2);
     }
