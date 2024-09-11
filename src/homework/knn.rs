@@ -15,12 +15,30 @@ pub fn clasificar(conocidos: &[&[f64]], clases: &[i32], muestra: &[f64], k: usiz
     let mut distances: Vec<(usize, f64)> = Vec::new();
 
     // Since euclidean_distance has 7*O(1) + 4*O(N), having a growth order of N, this part of the code takes
+    // N^2 operations to be done.
+    //          N(t6 + t7)                              t8
     for (index, vector) in conocidos.iter().enumerate() {
         let distance = euclidean_distance(vector, muestra);
         distances.push((index, distance.unwrap()))
     }
 
-    // Here should occur the distance assign for each `conocidos` value, then sort them by distance, and select the most frequent from the bottom-k.
+    distances.sort_by(
+        // First, we create a lambda where a and b are references to tuples.
+        //          t9            +       t10
+        |a: &(usize, f64), b: &(usize, f64)| {
+            /* a.1 and b.1 makes reference to the distance value.
+            So, this operation takes the a distance value, compares
+            with the b distance value, and then assign it if is greater,
+            lesser or equal (or None, this possibility forces us to unwrap the result).
+
+            The operations below are constant time (because basically they are memory-access operations), so
+            t11 + 12 + t13 + t14 */
+            a.1.partial_cmp(&b.1).unwrap()
+        },
+        // Finally, sort_by applies this function that returns a comparator, and sorts the vector.
+        /* All these operations repeats N(log(N)) times, so the total cost for this operation will be
+        (t9 + t10 + t11 + t12 + t13 + t14)N(log(N))*/
+    );
 
     Some(0)
 }
@@ -64,8 +82,8 @@ mod test {
 
     #[test]
     fn test_euclidean_distance_same_length() {
-        let x = [0., 0.];
-        let y = [1., 1.];
+        let x: [f64; 2] = [0., 0.];
+        let y: [f64; 2] = [1., 1.];
         let expected = 2_f64.sqrt();
         assert_eq!(euclidean_distance(&x, &y).unwrap(), expected)
     }
