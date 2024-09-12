@@ -1,6 +1,14 @@
 use std::{cmp::Ordering, collections::HashMap, iter::zip};
 
 /// This function assigns a class from `clases` for `muestra`, comparing the euclidean distances between `muestra` and all `conocidos` vectors.
+///
+/// This function haves a computational complexity that depends on:
+///     - `conocidos`' shape (its rows and columns amount),
+///     - the amount of `clases`
+///     - the `k` neighbors to compare.
+///
+/// Having all of these factors, the analytical time that this function takes is of these form:
+/// t1
 pub fn clasificar(conocidos: &[&[f64]], clases: &[i32], muestra: &[f64], k: usize) -> Option<i32> {
     /* First of all, take these considerations:
     - N will be the amount of characteristics of `conocidos` matrix (it's columns).
