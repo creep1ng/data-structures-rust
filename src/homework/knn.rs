@@ -1,3 +1,5 @@
+// Author: Ricardo Arias.
+
 use std::{cmp::Ordering, collections::HashMap, iter::zip};
 
 /// This function assigns a class from `clases` for `muestra`, comparing the euclidean distances between `muestra` and all `conocidos` vectors.
@@ -75,7 +77,8 @@ pub fn clasificar(conocidos: &[&[f64]], clases: &[i32], muestra: &[f64], k: usiz
         *class_count.entry(clases[index]).or_insert(0) += 1;
     });
 
-    // This operation takes t23*M + t24*M + t25 operations.
+    // This operation iterates this HashMap and finds the maximum element.
+    // t23 + t24*k + t25
     class_count
         .into_iter()
         .max_by_key(|&(_, count)| count)
