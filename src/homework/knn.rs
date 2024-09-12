@@ -1,5 +1,6 @@
 use std::{cmp::Ordering, collections::HashMap, iter::zip};
 
+/// This function assigns a class from `clases` for `muestra`, comparing the euclidean distances between `muestra` and all `conocidos` vectors.
 pub fn clasificar(conocidos: &[&[f64]], clases: &[i32], muestra: &[f64], k: usize) -> Option<i32> {
     /* First of all, take these considerations:
     - N will be the amount of characteristics of `conocidos` matrix (it's columns).
@@ -44,6 +45,10 @@ pub fn clasificar(conocidos: &[&[f64]], clases: &[i32], muestra: &[f64], k: usiz
         (t9 + t10 + t11 + t12 + t13 + t14)N(log(N)) */
     );
     // These yield and take operation are constant time (I guess), such the take function.
+
+    // Ensuring that `k` is not longer than the available neighbors. This is just an if comparison.
+    // t26
+    let k = k.min(distances.len());
 
     // t14 + t15 + t16 + t17
     let nearest_neighbors = distances.iter().take(k);
@@ -104,7 +109,7 @@ fn euclidean_distance(x: &[f64], y: &[f64]) -> Option<f64> {
 
 #[cfg(test)]
 mod test {
-    use crate::homework::knn::euclidean_distance;
+    use crate::homework::knn::*;
 
     #[test]
     fn test_euclidean_distance_same_length() {
@@ -120,5 +125,57 @@ mod test {
         let y = [0., 0., 0.];
         let expected = None;
         assert_eq!(euclidean_distance(&x, &y), expected)
+    }
+
+    #[test]
+    fn test_clasificar_simple_case() {
+        let conocidos: &[&[f64]] = &[
+            &[1.0, 2.0], // Point A
+            &[2.0, 3.0], // Point B
+            &[3.0, 4.0], // Point C
+        ];
+        let clases: &[i32] = &[0, 1, 1]; // Classes A: 0, B: 1, C: 1
+        let muestra: &[f64] = &[2.5, 3.5]; // Test point closer to B and C
+        let k = 2;
+
+        let predicted_class = clasificar(conocidos, clases, muestra, k);
+        assert_eq!(predicted_class, Some(1), "The predicted class should be 1.");
+    }
+
+    #[test]
+    fn test_clasificar_all_same_class() {
+        let conocidos: &[&[f64]] = &[&[1.0, 2.0], &[2.0, 3.0], &[3.0, 4.0]];
+        let clases: &[i32] = &[0, 0, 0]; // All points belong to class 0
+        let muestra: &[f64] = &[2.5, 3.5];
+        let k = 2;
+
+        let predicted_class = clasificar(conocidos, clases, muestra, k);
+        assert_eq!(predicted_class, Some(0), "The predicted class should be 0.");
+    }
+
+    #[test]
+    fn test_clasificar_edge_case_k_larger_than_data() {
+        let conocidos: &[&[f64]] = &[&[1.0, 2.0], &[2.0, 3.0]];
+        let clases: &[i32] = &[0, 1];
+        let muestra: &[f64] = &[2.5, 3.5];
+        let k = 5; // k is larger than the number of known points
+
+        let predicted_class = clasificar(conocidos, clases, muestra, k);
+        // Behavior depends on your implementation, assuming it handles this by falling back to considering all points
+        assert_eq!(predicted_class, Some(1), "The predicted class should be 1.");
+    }
+
+    #[test]
+    fn test_clasificar_invalid_input() {
+        let conocidos: &[&[f64]] = &[&[1.0, 2.0], &[2.0, 3.0]];
+        let clases: &[i32] = &[0]; // Mismatched length
+        let muestra: &[f64] = &[2.5, 2.5];
+        let k = 2;
+
+        let predicted_class = clasificar(conocidos, clases, muestra, k);
+        assert_eq!(
+            predicted_class, None,
+            "The function should return None for mismatched input lengths."
+        );
     }
 }
