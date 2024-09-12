@@ -3,4 +3,15 @@ name = "data-structures-rust"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
+[profile.bench]
+opt-level = 0
+debug = true
+
+[dev-dependencies]
+criterion = "0.3.5"
+rand = "0.8"
+
+[[bench]]
+name = "my_benchmark"
+path = "src/benches/my_benchmark.rs"
+harness = false
