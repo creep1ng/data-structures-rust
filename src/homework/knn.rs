@@ -1,6 +1,10 @@
-use std::iter::zip;
+use std::{cmp::Ordering, collections::HashMap, iter::zip};
 
 pub fn clasificar(conocidos: &[&[f64]], clases: &[i32], muestra: &[f64], k: usize) -> Option<i32> {
+    /* First of all, take these considerations:
+    - N will be the amount of characteristics of `conocidos` matrix (it's columns).
+    - M will be the amount of registries (the matrix's rows).
+    - We'll name C for the amount of classes at `clases` (clases.len()) */
     // All of these operations at this if statement are comparisons or memory-access operations, so we can assume that all this operation has a t1 cost.
     if conocidos.len() != clases.len() // t1
         || conocidos.is_empty() // + t2
@@ -33,14 +37,36 @@ pub fn clasificar(conocidos: &[&[f64]], clases: &[i32], muestra: &[f64], k: usiz
 
             The operations below are constant time (because basically they are memory-access operations), so
             t11 + 12 + t13 + t14 */
-            a.1.partial_cmp(&b.1).unwrap()
+            a.1.partial_cmp(&b.1).unwrap_or(Ordering::Equal)
         },
-        // Finally, sort_by applies this function that returns a comparator, and sorts the vector.
-        /* All these operations repeats N(log(N)) times, so the total cost for this operation will be
-        (t9 + t10 + t11 + t12 + t13 + t14)N(log(N))*/
+        /* Finally, sort_by applies this function that returns a comparator, and sorts the vector.
+        All these operations repeats N(log(N)) times, so the total cost for this operation will be
+        (t9 + t10 + t11 + t12 + t13 + t14)N(log(N)) */
     );
+    // These yield and take operation are constant time (I guess), such the take function.
 
-    Some(0)
+    // t14 + t15 + t16 + t17
+    let nearest_neighbors = distances.iter().take(k);
+    // t18
+    let mut class_count = HashMap::new();
+
+    // We iterate here over a k-length vector.
+    nearest_neighbors.for_each(|&(index, _)| {
+        /* All of these operations takes many other operations, but we can simplify some things:
+            - We can assume that the hash function to hash clases[index] is time constant.
+            - All lookup, insertion or update operations are constant time.
+
+           Considering all those things, this operation just haves 4 constants.
+           k(t19 + t20 + t21 + t22)
+        */
+        *class_count.entry(clases[index]).or_insert(0) += 1;
+    });
+
+    // This operation takes t23*M + t24*M + t25 operations.
+    class_count
+        .into_iter()
+        .max_by_key(|&(_, count)| count)
+        .map(|(class, _)| class)
 }
 
 /// Evaluates the euclidean distance between x and y.
