@@ -1,7 +1,8 @@
 use chrono::{DateTime, Local};
+use serde::Deserialize;
 use std::cmp::{self, Ordering};
 
-#[derive(PartialEq)]
+#[derive(Debug, Deserialize)]
 pub struct Movie {
     movie: String,
     year: u8,
@@ -47,9 +48,19 @@ impl Movie {
     fn cmp_by_attribute<T: PartialOrd>(attr1: &T, attr2: &T) -> Ordering {
         return attr1.partial_cmp(attr2).unwrap();
     }
+}
 
-    pub fn cmp_by_domestic_gross(&self, other: &Self) -> Ordering {
-        cmp_by_attribute(&self.domestic_gross, &other.domestic_gross)
+impl PartialEq for Movie {
+    fn eq(&self, other: &Self) -> bool {
+        self.year == other.year
+    }
+}
+
+impl Eq for Movie {}
+
+impl Ord for Movie {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.year.cmp(&other.year)
     }
 }
 
@@ -71,12 +82,6 @@ impl PartialOrd for Movie {
     }
 
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        if self.year == other.year {
-            Some(Ordering::Equal)
-        } else if self.year < other.year {
-            Some(Ordering::Less)
-        } else {
-            Some(Ordering::Greater)
-        }
+        self.year.partial_cmp(&other.year)
     }
 }
